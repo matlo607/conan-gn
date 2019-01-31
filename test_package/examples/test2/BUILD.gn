@@ -1,0 +1,9 @@
+executable("test2") {
+  sources = [ "test2.cpp" ]
+
+  cflags = [ "-Wall" ]
+  defines = [ "EVIL_BIT=1" ]
+  include_dirs = [ "." ]
+
+  #deps = [ "//base" ]
+}

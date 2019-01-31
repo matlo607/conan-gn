@@ -1,0 +1,6 @@
+group("gn-examples") {
+  deps = [
+    "//examples/test1",
+    "//examples/test2"
+  ]
+}
