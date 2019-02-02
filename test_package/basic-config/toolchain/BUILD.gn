@@ -65,6 +65,7 @@ template("unix_toolchain") {
         outfile,
       ]
       lib_switch = "-l"
+      lib_dir_switch = "-Wl,-L"
       output_prefix = "lib"
       default_output_dir = "{{root_out_dir}}/lib"
     }
@@ -83,6 +84,7 @@ template("unix_toolchain") {
         outfile,
       ]
       lib_switch = "-l"
+      lib_dir_switch = "-Wl,-L"
       default_output_dir = "{{root_out_dir}}/lib"
     }
 
@@ -98,6 +100,7 @@ template("unix_toolchain") {
         outfile,
       ]
       lib_switch = "-l"
+      lib_dir_switch = "-Wl,-L"
 
       # Setting this allows targets to override the default executable output by
       # setting output_dir.

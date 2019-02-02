@@ -1,4 +1,5 @@
 executable("test2") {
+  testonly = true
   sources = [ "test2.cpp" ]
 
   cflags = [ "-Wall" ]

@@ -1,9 +1,9 @@
 executable("test1") {
+  testonly = true
   sources = [ "test1.cpp" ]
 
   cflags = [ "-Wall" ]
-  defines = [ "EVIL_BIT=1" ]
   include_dirs = [ "." ]
 
-  #deps = [ "//base" ]
+  deps = [ "//thirdparty/libs/googletest:gtest_main" ]
 }

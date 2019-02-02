@@ -1,7 +1,5 @@
-#include <iostream>
+#include <gtest/gtest.h>
 
-int main(void)
-{
-    std::cout << "Hello world !" << std::endl;
-    return 0;
+TEST(Test1, dummy_equal) {
+    EXPECT_EQ(0, 0);
 }

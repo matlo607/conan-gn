@@ -1,4 +1,5 @@
 group("gn-examples") {
+  testonly = true
   deps = [
     "//examples/test1",
     "//examples/test2"
