@@ -1,6 +1,7 @@
 import("//basic-config/buildflags.gni")
 import("//basic-config/toolchain/compiler.gni")
 import("//basic-config/toolchain/target_flags.gni")
+import("//basic-config/utils/unittest/unittest.gni")
 
 config("compiler_defaults") {
   defines = []

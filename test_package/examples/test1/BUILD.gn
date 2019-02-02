@@ -1,9 +1,6 @@
-executable("test1") {
-  testonly = true
+import("//basic-config/utils/unittest/unittest.gni")
+
+unittest("test1") {
   sources = [ "test1.cpp" ]
-
-  cflags = [ "-Wall" ]
-  include_dirs = [ "." ]
-
-  deps = [ "//thirdparty/libs/googletest:gtest_main" ]
+  deps = []
 }
