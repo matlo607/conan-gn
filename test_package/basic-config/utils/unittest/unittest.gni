@@ -15,7 +15,7 @@
 #   }
 
 template("unittest") {
-  executable(target_name) {
+  executable("_" + target_name) {
     has_custom_main = false  # Default value.
 
     # Foward everything (has_custom_main if set; configs, sources, deps, ...).
@@ -50,5 +50,30 @@ template("unittest") {
       deps += [ "//thirdparty/libs/googletest:gtest_main" ]
     }
     testonly = true
+  }
+
+  action(target_name) {
+    #sources = [ "_" + target_name ]
+    script = root_out_dir + "/bin/test2.py"
+    #_" + target_name
+    #script = rebase_path("_" + target_name, target_out_dir)
+
+    #outputs = [ "$target_gen_dir/insightful_output.txt" ]
+
+    outputs = ["$target_gen_dir/force-run"]
+
+    # Our script imports this Python file so we want to rebuild if it changes.
+    #inputs = [ "helper_library.py" ]
+
+    # Note that we have to manually pass the sources to our script if the
+    # script needs them as inputs.
+    args = [ rebase_path(target_out_dir, root_build_dir) + "/_" + target_name ]
+    #args = [ "--out", rebase_path(target_gen_dir, root_build_dir) ] +
+    #       rebase_path(sources, root_build_dir)
+    testonly = true
+
+    deps = [":_" + target_name]
+
+    pool = "//:console"
   }
 }
