@@ -4,7 +4,8 @@
 # add the flags to compiler_defaults, not to a new config.
 shared_binary_target_configs = [
   "//basic-config:compiler_defaults",
-  "//basic-config:no_rtti"
+  "//basic-config:no_rtti",
+  "//basic-config:position_independent_code",
 ]
 
 # Apply that default list to the binary target types.

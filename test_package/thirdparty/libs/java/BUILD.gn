@@ -1,0 +1,45 @@
+if (current_os == "win") {
+  _java_home = "C:\jdk1.8.0_131-x64"
+} else {
+  _java_home = "/usr/lib/jvm/java-1.8.0-openjdk-amd64"
+}
+
+config("jdk8_includes") {
+  include_dirs = [
+    "${_java_home}/include"
+  ]
+
+  if (current_os == "win") {
+    include_dirs += [
+      "${_java_home}/include/win32",
+    ]
+  } else {
+    include_dirs += [
+      "${_java_home}/include/linux",
+    ]
+  }
+}
+
+config("jdk8_config") {
+  visibility = [ ":jdk8" ]
+
+  if (current_os == "win") {
+    libs = [
+      "${_java_home}/lib/jvm.lib",
+    ]
+  } else {
+    libs = [
+      "jvm",
+    ]
+    lib_dirs = [
+      "${_java_home}/jre/lib/amd64/server",
+    ]
+  }
+}
+
+group("jdk8") {
+  public_configs = [
+    ":jdk8_includes",
+    ":jdk8_config",
+  ]
+}

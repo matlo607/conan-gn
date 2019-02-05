@@ -1,0 +1,21 @@
+config("python27_config") {
+  visibility = [ ":python27" ]
+
+  if (current_os == "win") {
+    _python27_root = "C:/Python27"
+
+    include_dirs = [ "${_python27_root}/include" ]
+    libs = [ "${_python27_root}/libs/python27.lib" ]
+
+  } else {
+    _python27_root = "/usr"
+
+    include_dirs = [ "${_python27_root}/include/python2.7" ]
+    libs = [ "python2.7" ]
+    lib_dirs = [ "${_python27_root}/lib" ]
+  }
+}
+
+group("python27") {
+  public_configs = [ ":python27_config" ]
+}

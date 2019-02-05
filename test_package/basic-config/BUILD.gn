@@ -29,7 +29,6 @@ config("compiler_defaults") {
     cflags += [ "-fdiagnostics-color" ]
     cflags_cc = [
       "-std=c++11",
-      "-fno-exceptions",
       "-fvisibility-inlines-hidden",
     ]
   } else {
@@ -174,3 +173,11 @@ config("no_rtti") {
 #    cflags = [ "-Wcovered-switch-default" ]
 #  }
 #}
+
+config("position_independent_code") {
+  if (host_os != "win") {
+    cflags = [
+      "-fPIC",
+    ]
+  }
+}

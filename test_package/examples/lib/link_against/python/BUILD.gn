@@ -1,0 +1,22 @@
+config("headers") {
+  visibility = [ ":link_python" ]
+
+  include_dirs = [
+    "hpp",
+  ]
+}
+
+shared_library("link_python") {
+  sources = [
+    "src/bridge.cpp",
+    "src/internals.cpp",
+  ]
+
+  public_deps = [
+    "//thirdparty/libs/python:python27",
+  ]
+
+  public_configs = [
+    ":headers"
+  ]
+}

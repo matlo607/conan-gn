@@ -1,0 +1,18 @@
+#import("//basic-config/utils/unittest/unittest.gni")
+
+#unittest("test3") {
+executable("test3") {
+  testonly = true
+
+  sources = [
+    "test3.cpp",
+  ]
+
+  deps = [
+    "//examples/lib/link_against/python:link_python",
+    "//examples/lib/link_against/java:link_java",
+    "//thirdparty/libs/googletest:gtest_main"
+  ]
+
+  print(deps)
+}
