@@ -1,10 +1,10 @@
-if (current_os == "win") {
-  _java_home = "C:\jdk1.8.0_131-x64"
-} else {
-  _java_home = "/usr/lib/jvm/java-1.8.0-openjdk-amd64"
-}
+import("//local-config/installation_paths.gni")
 
-config("jdk8_includes") {
+config("jdk8_config") {
+  visibility = [ ":jdk8" ]
+
+  _java_home = "${java_root}"
+
   include_dirs = [
     "${_java_home}/include"
   ]
@@ -18,10 +18,6 @@ config("jdk8_includes") {
       "${_java_home}/include/linux",
     ]
   }
-}
-
-config("jdk8_config") {
-  visibility = [ ":jdk8" ]
 
   if (current_os == "win") {
     libs = [
@@ -39,7 +35,6 @@ config("jdk8_config") {
 
 group("jdk8") {
   public_configs = [
-    ":jdk8_includes",
     ":jdk8_config",
   ]
 }
