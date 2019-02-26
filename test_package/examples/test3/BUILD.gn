@@ -14,5 +14,5 @@ executable("test3") {
     "//thirdparty/libs/googletest:gtest_main"
   ]
 
-  print(deps)
+  #print(deps)
 }

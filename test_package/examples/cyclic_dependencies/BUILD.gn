@@ -1,0 +1,12 @@
+executable("executable_with_cyclic_dependencies") {
+  testonly = true
+
+  sources = [
+    "main.cc",
+  ]
+
+  deps = [
+    "//examples/cyclic_dependencies/a",
+    "//examples/cyclic_dependencies/b",
+  ]
+}

@@ -135,6 +135,12 @@ config("no_rtti") {
   }
 }
 
+config("check_undefined_symbols") {
+  if (current_os != "win") {
+    ldflags = [ "-Wl,-z,defs" ]
+  }
+}
+
 #config("llvm_code") {
 #  include_dirs = [
 #    "//llvm/include",
