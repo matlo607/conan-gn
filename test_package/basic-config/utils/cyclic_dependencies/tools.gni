@@ -2,16 +2,16 @@ template("cyclic_deps_shared_library") {
     forward_variables_from(invoker, "*")
     assert(defined(invoker.cyclic_deps), "You need to specify the list of cyclic dependencies")
 
-    target_public_headers = "${target_name}_public_headers"
+    target_public_config = "${target_name}_public_config"
 
-    config(target_public_headers) {
-        visibility = [ ":" + target_name, ":${target_name}_public_include" ]
+    config("_${target_public_config}") {
+        visibility = [ ":" + target_name, ":${target_public_config}" ]
         include_dirs = []
         include_dirs = invoker.include_dirs
     }
 
-    group(target_name + "_public_include") {
-        public_configs = [ ":${target_public_headers}" ]
+    group("${target_public_config}") {
+        public_configs = [ ":_${target_public_config}" ]
     }
 
     #print(invoker.cyclic_deps)
@@ -27,16 +27,16 @@ template("cyclic_deps_shared_library") {
         }
         foreach(cyclic_dep, cyclic_deps) {
             dep_name = get_label_info(cyclic_dep, "name")
-            deps += [ "${cyclic_dep}:${dep_name}_public_include" ]
+            deps += [ "${cyclic_dep}:${dep_name}_public_config" ]
         }
 
         # Add public dependencies on this library's headers
         if (defined(invoker.public_configs)) {
             public_configs = []
             public_configs = invoker.public_configs
-            public_configs += [ ":${target_public_headers}" ]
+            public_configs += [ ":_${target_public_config}" ]
         } else {
-            public_configs = [ ":${target_public_headers}" ]
+            public_configs = [ ":_${target_public_config}" ]
         }
     }
 }
