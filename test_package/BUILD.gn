@@ -4,7 +4,8 @@ group("gn-examples") {
     #"//examples/test1",
     "//examples/test2",
     "//examples/test3",
-    "//examples/cyclic_dependencies:executable_with_cyclic_dependencies",
+    "//examples/cyclic_dependencies/2:executable_with_2_cyclic_dependencies",
+    "//examples/cyclic_dependencies/3:executable_with_3_cyclic_dependencies",
   ]
 }
 

@@ -1,8 +1,8 @@
 import("//basic-config/utils/cyclic_dependencies/tools.gni")
 
-cyclic_deps_shared_library("b") {
+cyclic_deps_shared_library("a3") {
   sources = [
-    "src/B.cc",
+    "src/A.cc",
   ]
 
   include_dirs = [
@@ -10,6 +10,6 @@ cyclic_deps_shared_library("b") {
   ]
 
   cyclic_deps = [
-    "//examples/cyclic_dependencies/a",
+    "//examples/cyclic_dependencies/3/b3",
   ]
 }

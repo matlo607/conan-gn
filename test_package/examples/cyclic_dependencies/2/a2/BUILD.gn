@@ -1,6 +1,6 @@
 import("//basic-config/utils/cyclic_dependencies/tools.gni")
 
-cyclic_deps_shared_library("a") {
+cyclic_deps_shared_library("a2") {
   sources = [
     "src/A.cc",
   ]
@@ -10,6 +10,6 @@ cyclic_deps_shared_library("a") {
   ]
 
   cyclic_deps = [
-    "//examples/cyclic_dependencies/b",
+    "//examples/cyclic_dependencies/2/b2",
   ]
 }
