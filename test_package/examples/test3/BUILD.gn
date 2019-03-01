@@ -1,5 +1,14 @@
 #import("//basic-config/utils/unittest/unittest.gni")
 
+group("test3_config") {
+  testonly = true
+  public_deps = [
+    "//examples/lib/link_against/python:link_python",
+    "//examples/lib/link_against/java:link_java",
+    "//thirdparty/libs/googletest:gtest_main"
+  ]
+}
+
 #unittest("test3") {
 executable("test3") {
   testonly = true
@@ -8,11 +17,12 @@ executable("test3") {
     "test3.cpp",
   ]
 
-  deps = [
-    "//examples/lib/link_against/python:link_python",
-    "//examples/lib/link_against/java:link_java",
-    "//thirdparty/libs/googletest:gtest_main"
-  ]
+  deps = [ ":test3_config" ]
+}
 
-  #print(deps)
+generated_file("test3_env_metadata") {
+  testonly = true
+  outputs = [ "$root_build_dir/test3.json" ]
+  data_keys = [ "envvars" ]
+  deps = [ ":test3_config" ]
 }

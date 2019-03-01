@@ -35,11 +35,11 @@
 #}
 
 if (current_os == "linux") {
-    java_root = "/usr/lib/jvm/java-1.8.0-openjdk-amd64"
+    java8_root = "/usr/lib/jvm/java-1.8.0-openjdk-amd64"
     python27_root = "/usr"
     python3_root = "/usr"
 } else {
-    java_root = "C:/jdk1.8.0_131-x64"
+    java8_root = "C:/jdk1.8.0_131-x64"
     python27_root = "C:/Python27"
     python3_root = "C:/Program Files/Python36"
 }

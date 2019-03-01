@@ -6,6 +6,14 @@ config("headers") {
   ]
 }
 
+group("link_python_runtime_config") {
+  metadata = {
+    envvars = [
+      "name=\"PYTHONPATH\",op=\"prepend\",value=\"${root_build_dir}/lib/python2.7\"",
+    ]
+  }
+}
+
 shared_library("link_python") {
   sources = [
     "src/bridge.cpp",
@@ -14,6 +22,7 @@ shared_library("link_python") {
 
   public_deps = [
     "//thirdparty/libs/python:python27",
+    ":link_python_runtime_config",
   ]
 
   public_configs = [
