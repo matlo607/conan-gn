@@ -14,6 +14,24 @@ group("link_python_runtime_config") {
   }
 }
 
+python_output_dir = "${root_build_dir}/lib"
+
+action_foreach("copy_python_module") {
+  script = "//basic-config/utils/cp.py"
+
+  sources = [
+    "python2.7/dummy/__init__.py",
+  ]
+
+  outputs = [ "${python_output_dir}/{{source_target_relative}}" ]
+
+  args = [
+    "--debug",
+    "{{source}}",
+    rebase_path("${python_output_dir}", root_build_dir) + "/{{source_target_relative}}",
+  ]
+}
+
 shared_library("link_python") {
   sources = [
     "src/bridge.cpp",
