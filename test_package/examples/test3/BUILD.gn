@@ -1,4 +1,4 @@
-#import("//basic-config/utils/unittest/unittest.gni")
+import("//basic-config/utils/unittest/unittest.gni")
 
 group("test3_config") {
   testonly = true
@@ -9,20 +9,9 @@ group("test3_config") {
   ]
 }
 
-#unittest("test3") {
-executable("test3") {
-  testonly = true
-
+unittest("test3") {
   sources = [
     "test3.cpp",
   ]
-
-  deps = [ ":test3_config" ]
-}
-
-generated_file("test3_env_metadata") {
-  testonly = true
-  outputs = [ "$root_build_dir/test3.json" ]
-  data_keys = [ "envvars" ]
   deps = [ ":test3_config" ]
 }

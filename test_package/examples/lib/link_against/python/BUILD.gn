@@ -6,15 +6,15 @@ config("headers") {
   ]
 }
 
+python_output_dir = "${root_build_dir}/lib"
+
 group("link_python_runtime_config") {
   metadata = {
     envvars = [
-      "name=\"PYTHONPATH\",op=\"prepend\",value=\"${root_build_dir}/lib/python2.7\"",
+      "name=\"PYTHONPATH\",op=\"prepend\",value=\"/" + rebase_path("${python_output_dir}/python2.7", "/") + "\"",
     ]
   }
 }
-
-python_output_dir = "${root_build_dir}/lib"
 
 action_foreach("copy_python_module") {
   script = "//basic-config/utils/cp.py"

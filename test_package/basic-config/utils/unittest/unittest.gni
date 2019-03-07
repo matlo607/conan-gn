@@ -15,6 +15,17 @@
 #   }
 
 template("unittest") {
+  local_target_name = target_name
+
+  group("global_runtime_path") {
+    metadata = {
+      envvars = [
+        "name=\"PATH\",op=\"prepend\",value=\"/" + rebase_path("${root_build_dir}/bin", "/") + "\"",
+        "name=\"LD_LIBRARY_PATH\",op=\"prepend\",value=\"/" + rebase_path("${root_build_dir}/lib", "/") + "\"",
+      ]
+    }
+  }
+
   executable("_" + target_name) {
     has_custom_main = false  # Default value.
 
@@ -49,31 +60,65 @@ template("unittest") {
     } else {
       deps += [ "//thirdparty/libs/googletest:gtest_main" ]
     }
+
     testonly = true
   }
 
-  action(target_name) {
-    #sources = [ "_" + target_name ]
-    script = root_out_dir + "/bin/test2.py"
-    #_" + target_name
-    #script = rebase_path("_" + target_name, target_out_dir)
+  generated_file("_${target_name}_env_metadata") {
+    testonly = true
+    outputs = [ "${target_gen_dir}/${local_target_name}_env.op" ]
+    data_keys = [ "envvars" ]
+    deps = [
+      ":${local_target_name}_config",
+      ":global_runtime_path",
+    ]
+  }
 
-    #outputs = [ "$target_gen_dir/insightful_output.txt" ]
-
-    outputs = ["$target_gen_dir/force-run"]
-
-    # Our script imports this Python file so we want to rebuild if it changes.
-    #inputs = [ "helper_library.py" ]
-
-    # Note that we have to manually pass the sources to our script if the
-    # script needs them as inputs.
-    args = [ rebase_path(target_out_dir, root_build_dir) + "/_" + target_name ]
-    #args = [ "--out", rebase_path(target_gen_dir, root_build_dir) ] +
-    #       rebase_path(sources, root_build_dir)
+  #action("_${target_name}_wrapper") {
+  action("${target_name}") {
     testonly = true
 
-    deps = [":_" + target_name]
+    output_dir = "${root_build_dir}/testing/bin"
 
-    pool = "//:console"
+    sources = [ "${target_gen_dir}/${local_target_name}_env.op" ]
+    outputs = [ "${output_dir}/${local_target_name}.sh" ]
+
+    script = "//basic-config/utils/generate_wrapper.py"
+    args = [
+      "--debug",
+      "--language", "bash",
+      "--env-ops", rebase_path(sources[0], root_build_dir),
+      "--output", rebase_path(outputs[0], root_build_dir),
+    ]
+
+    deps = [ ":_${local_target_name}_env_metadata" ]
   }
+
+#  action(target_name) {
+#    #sources = [ "_" + target_name ]
+#    script = root_out_dir + "/bin/test2.py"
+#    #_" + target_name
+#    #script = rebase_path("_" + target_name, target_out_dir)
+#
+#    #outputs = [ "$target_gen_dir/insightful_output.txt" ]
+#
+#    outputs = ["$target_gen_dir/force-run"]
+#
+#    # Our script imports this Python file so we want to rebuild if it changes.
+#    #inputs = [ "helper_library.py" ]
+#
+#    # Note that we have to manually pass the sources to our script if the
+#    # script needs them as inputs.
+#    args = [ rebase_path(target_out_dir, root_build_dir) + "/_" + target_name ]
+#    #args = [ "--out", rebase_path(target_gen_dir, root_build_dir) ] +
+#    #       rebase_path(sources, root_build_dir)
+#    testonly = true
+#
+#    deps = [
+#      ":_${local_target_name}",
+#      ":_${local_target_name}_wrapper",
+#    ]
+#
+#    pool = "//:console"
+#  }
 }
