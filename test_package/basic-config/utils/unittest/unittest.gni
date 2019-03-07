@@ -17,6 +17,9 @@
 template("unittest") {
   local_target_name = target_name
 
+  test_bin_dir = "${root_build_dir}/testing/bin"
+  #test_lib_dir = "${root_build_dir}/testing/lib"
+
   group("global_runtime_path") {
     metadata = {
       envvars = [
@@ -30,7 +33,7 @@ template("unittest") {
     has_custom_main = false  # Default value.
 
     # Foward everything (has_custom_main if set; configs, sources, deps, ...).
-    forward_variables_from(invoker, "*")
+    forward_variables_from(invoker, "*", ["is_standalone"])
     assert(!defined(invoker.output_dir), "cannot set unittest output_dir")
     assert(!defined(invoker.testonly), "cannot set unittest testonly")
 
@@ -53,8 +56,11 @@ template("unittest") {
     #
     # If you change output_dir here, look through
     # `git grep target_out_dir '*/unittests/*'` and update those too.
-    output_dir = target_out_dir
+    output_dir = test_bin_dir
 
+    if (!defined(invoker.deps)) {
+      deps = []
+    }
     if (has_custom_main) {
       deps += [ "//thirdparty/libs/googletest:gtest" ]
     } else {
@@ -66,19 +72,27 @@ template("unittest") {
 
   generated_file("_${target_name}_env_metadata") {
     testonly = true
+
+    forward_variables_from(invoker, [ "is_standalone", "deps" ])
+    if (defined(invoker.is_standalone)) {
+      is_standalone = invoker.is_standalone
+    } else {
+      is_standalone = false
+    }
+
     outputs = [ "${target_gen_dir}/${local_target_name}_env.op" ]
     data_keys = [ "envvars" ]
-    deps = [
-      ":${local_target_name}_config",
-      ":global_runtime_path",
-    ]
+    if (!is_standalone) {
+      deps += [
+        ":global_runtime_path",
+      ]
+    }
   }
 
-  #action("_${target_name}_wrapper") {
-  action("${target_name}") {
+  action("_${target_name}_wrapper") {
     testonly = true
 
-    output_dir = "${root_build_dir}/testing/bin"
+    output_dir = test_bin_dir
 
     sources = [ "${target_gen_dir}/${local_target_name}_env.op" ]
     outputs = [ "${output_dir}/${local_target_name}.sh" ]
@@ -94,31 +108,22 @@ template("unittest") {
     deps = [ ":_${local_target_name}_env_metadata" ]
   }
 
-#  action(target_name) {
-#    #sources = [ "_" + target_name ]
-#    script = root_out_dir + "/bin/test2.py"
-#    #_" + target_name
-#    #script = rebase_path("_" + target_name, target_out_dir)
-#
-#    #outputs = [ "$target_gen_dir/insightful_output.txt" ]
-#
-#    outputs = ["$target_gen_dir/force-run"]
-#
-#    # Our script imports this Python file so we want to rebuild if it changes.
-#    #inputs = [ "helper_library.py" ]
-#
-#    # Note that we have to manually pass the sources to our script if the
-#    # script needs them as inputs.
-#    args = [ rebase_path(target_out_dir, root_build_dir) + "/_" + target_name ]
-#    #args = [ "--out", rebase_path(target_gen_dir, root_build_dir) ] +
-#    #       rebase_path(sources, root_build_dir)
-#    testonly = true
-#
-#    deps = [
-#      ":_${local_target_name}",
-#      ":_${local_target_name}_wrapper",
-#    ]
-#
-#    pool = "//:console"
-#  }
+  action(target_name) {
+    testonly = true
+
+    deps = [
+      ":_${local_target_name}",
+      ":_${local_target_name}_wrapper",
+    ]
+
+    script = "//basic-config/utils/dummy_executor.py"
+    args = [
+      rebase_path(test_bin_dir, root_build_dir) + "/${local_target_name}.sh",
+      rebase_path(test_bin_dir, root_build_dir) + "/_${local_target_name}",
+    ]
+
+    outputs = ["${target_gen_dir}/force-run"]
+
+    pool = "//:console"
+  }
 }
