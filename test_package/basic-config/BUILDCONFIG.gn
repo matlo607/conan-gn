@@ -51,3 +51,6 @@ if (host_os == "win") {
 
 set_default_toolchain(host_toolchain)
 
+is_linux = current_os == "linux"
+is_mac = current_os == "mac"
+is_win = current_os == "win"

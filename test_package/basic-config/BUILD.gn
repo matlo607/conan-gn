@@ -28,7 +28,7 @@ config("compiler_defaults") {
     }
     cflags += [ "-fdiagnostics-color" ]
     cflags_cc = [
-      "-std=c++11",
+      "-std=c++14",
       "-fvisibility-inlines-hidden",
     ]
   } else {
@@ -53,6 +53,10 @@ config("compiler_defaults") {
       "UNICODE",
     ]
     cflags += [ "/EHs-c-" ]
+    cflags_cc = [
+      "/std:c++14",
+      "/Zc:__cplusplus",
+    ]
 
     # The MSVC default value (1 MB) is not enough for parsing recursive C++
     # templates in Clang.
@@ -140,45 +144,6 @@ config("check_undefined_symbols") {
     ldflags = [ "-Wl,-z,defs" ]
   }
 }
-
-#config("llvm_code") {
-#  include_dirs = [
-#    "//llvm/include",
-#    "$root_gen_dir/llvm/include",
-#  ]
-#}
-#
-#config("lld_code") {
-#  include_dirs = [
-#    "//lld/include",
-#    "$root_gen_dir/lld/include",
-#  ]
-#}
-#
-#config("clang_code") {
-#  if (host_os != "win") {
-#    cflags = [ "-fno-strict-aliasing" ]
-#  }
-#  include_dirs = [
-#    "//clang/include",
-#    "$root_gen_dir/clang/include",
-#  ]
-#}
-#
-#config("crt_code") {
-#  include_dirs = [ "//compiler-rt/lib" ]
-#  cflags = [
-#    "-fPIC",
-#    "-funwind-tables",
-#    "-gline-tables-only",
-#  ]
-#}
-#
-#config("warn_covered_switch_default") {
-#  if (is_clang) {
-#    cflags = [ "-Wcovered-switch-default" ]
-#  }
-#}
 
 config("position_independent_code") {
   if (host_os != "win") {

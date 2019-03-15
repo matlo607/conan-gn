@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 __doc__ = ("Parse a file containing environment operations with the following format:"
            " 'name=\"VAR_IDENTIFIER\",op=\"(set|unset|prepend|append)\",value=\"string_value\"'."
@@ -48,7 +48,7 @@ def parse_args():
             raise ValueError(msg)
         return path
 
-    SUPPORTED_LANGUAGES = { "bash" }
+    SUPPORTED_LANGUAGES = { "bash", "batch" }
     def check_language(s):
         """
             Check the pattern of variables in argument
@@ -59,10 +59,11 @@ def parse_args():
             raise ValueError(msg)
         return s
 
+    DEFAULT_WRAPPER_LANGUAGE = "batch" if sys.platform == "win32" else "bash"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-l', '--language', metavar='LANGUAGE',
                         required=False,
-                        default="bash",
+                        default=DEFAULT_WRAPPER_LANGUAGE,
                         type=check_language,
                         help="Language that will be used to generate the script ("
                              "possible values: {}).".format(', '.join(SUPPORTED_LANGUAGES)))
@@ -160,6 +161,31 @@ class BashRenderer(object):
         return content
 
 
+class BatchRenderer(object):
+
+    @classmethod
+    def render(cls, operations):
+        from io import StringIO
+        output = StringIO()
+        output.write("@echo off" + os.linesep)
+        output.write("setlocal" + os.linesep)
+        for varname, operation in operations.items():
+            for op_type, value in operation.items():
+                if op_type == "unset":
+                    output.write('SET {varname}='.format(varname=varname) + os.linesep)
+                elif op_type == "set":
+                    output.write('SET {varname}="{value}"'.format(varname=varname, value=value) + os.linesep)
+                elif op_type == "prepend":
+                    output.write('SET {varname}="{value}";%{varname}%'.format(varname=varname, value=value) + os.linesep)
+                elif op_type == "append":
+                    output.write('SET {varname}=%{varname}%;"{value}"'.format(varname=varname, value=value) + os.linesep)
+        output.write('echo %*' + os.linesep)
+        output.write("%*" + os.linesep)
+        content = output.getvalue()
+        output.close()
+        return content
+
+
 class ScriptWritter(object):
     UNIX_RIGHTS = stat.S_IFREG | stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH
 
@@ -169,7 +195,8 @@ class ScriptWritter(object):
     def write(self, filepath, renderer):
         with open(filepath, 'w') as fd:
             fd.write(renderer.render(self._operations))
-        os.chmod(filepath, self.UNIX_RIGHTS)
+        if sys.platform != "win32":
+            os.chmod(filepath, self.UNIX_RIGHTS)
 
 
 def run(args):
@@ -180,6 +207,8 @@ def run(args):
         operations = merger.get()
         if args.language == "bash":
             renderer = BashRenderer
+        elif args.language == "batch":
+            renderer = BatchRenderer
         ScriptWritter(operations).write(args.output, renderer)
     return 0
 

@@ -222,6 +222,8 @@ toolchain("win") {
       libfile,
     ]
     default_output_extension = ".dll"
+    lib_switch = ""
+    lib_dir_switch = "/LIBPATH:"
     restat = true
 
     # Put dlls next to the executables in bin/ on Windows, since Windows
@@ -255,6 +257,8 @@ toolchain("win") {
       outfile,
     ]
     default_output_extension = ".exe"
+    lib_switch = ""
+    lib_dir_switch = "/LIBPATH:"
 
     # Setting this allows targets to override the default executable output by
     # setting output_dir.

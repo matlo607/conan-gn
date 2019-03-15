@@ -4,6 +4,7 @@ config("headers") {
   include_dirs = [
     "hpp",
   ]
+  defines = [ "PYTHON_BRIDGE_EXPORTS" ]
 }
 
 python_output_dir = "${root_build_dir}/lib"
