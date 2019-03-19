@@ -37,4 +37,10 @@ if __name__ == '__main__':
     if len(cmd) == 0:
         print(__doc__)
     else:
+        if os.name == 'nt':
+            extension = os.path.splitext(cmd[0])[1]
+            if extension == ".bat":
+                cmd = ["cmd.exe", "/c"] + cmd
+            elif extension == ".ps1":
+                cmd = ["powershell", "-Command"] + cmd
         subprocess.run(cmd, check=True)
