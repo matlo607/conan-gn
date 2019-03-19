@@ -54,3 +54,20 @@ set_default_toolchain(host_toolchain)
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_win = current_os == "win"
+
+# Tests configuration
+if (is_win) {
+  test_wrapper_lang = "powershell"
+  #test_wrapper_lang = "batch"
+} else {
+  test_wrapper_lang = "bash"
+  #test_wrapper_lang = "powershell"
+}
+
+if (test_wrapper_lang == "batch") {
+  test_wrapper_extension = ".bat"
+} else if (test_wrapper_lang == "bash") {
+  test_wrapper_extension = ".sh"
+} else if (test_wrapper_lang == "powershell") {
+  test_wrapper_extension = ".ps1"
+}

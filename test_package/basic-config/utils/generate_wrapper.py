@@ -48,7 +48,7 @@ def parse_args():
             raise ValueError(msg)
         return path
 
-    SUPPORTED_LANGUAGES = { "bash", "batch" }
+    SUPPORTED_LANGUAGES = { "bash", "batch", "powershell" }
     def check_language(s):
         """
             Check the pattern of variables in argument
@@ -186,6 +186,48 @@ class BatchRenderer(object):
         return content
 
 
+class PowershellRenderer(object):
+
+    @classmethod
+    def render(cls, operations):
+        from io import StringIO
+        output = StringIO()
+        output.write("#! /usr/bin/env pwsh" + os.linesep + os.linesep)
+        output.write("function main($argv) {" + os.linesep)
+        output.write("  Write-Host $argv" + os.linesep)
+        output.write('  $result = Invoke-Expression -Command "& $argv"' + os.linesep)
+        output.write("  $exit_code = $lastexitcode" + os.linesep)
+        output.write('  $result = $result -join "`r`n"' + os.linesep)
+        output.write("  Write-Host $result" + os.linesep)
+        output.write("  return $exit_code" + os.linesep)
+        output.write("}" + os.linesep + os.linesep)
+        for varname, operation in operations.items():
+            for op_type, value in operation.items():
+                if op_type == "unset":
+                    output.write("if (Test-Path env:{varname}) {{".format(varname=varname) + os.linesep)
+                    output.write("  Remove-Item Env:\\{varname}".format(varname=varname) + os.linesep)
+                    output.write("}" + os.linesep)
+                elif op_type == "set":
+                    output.write('$env:{varname} = "{value}"'.format(varname=varname, value=value) + os.linesep)
+                elif op_type == "prepend":
+                    output.write("if (-not (Test-Path env:{varname})) {{".format(varname=varname) + os.linesep)
+                    output.write('  $env:{varname} = "{value}"'.format(varname=varname, value=value) + os.linesep)
+                    output.write("} else {" + os.linesep)
+                    output.write('  $env:{varname} = "{value}{separator}$env:{varname}"'.format(varname=varname, value=value, separator=os.pathsep) + os.linesep)
+                    output.write("}" + os.linesep)
+                elif op_type == "append":
+                    output.write("if (-not (Test-Path env:{varname})) {{".format(varname=varname) + os.linesep)
+                    output.write('  $env:{varname} = "{value}"'.format(varname=varname, value=value) + os.linesep)
+                    output.write("} else {" + os.linesep)
+                    output.write('  $env:{varname} = "$env:{varname}{separator}{value}"'.format(varname=varname, value=value, separator=os.pathsep) + os.linesep)
+                    output.write("}" + os.linesep)
+        output.write(os.linesep)
+        output.write("exit $(main $(New-Object System.Collections.ArrayList(,$args)))" + os.linesep)
+        content = output.getvalue()
+        output.close()
+        return content
+
+
 class ScriptWritter(object):
     UNIX_RIGHTS = stat.S_IFREG | stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH
 
@@ -209,6 +251,8 @@ def run(args):
             renderer = BashRenderer
         elif args.language == "batch":
             renderer = BatchRenderer
+        elif args.language == "powershell":
+            renderer = PowershellRenderer
         ScriptWritter(operations).write(args.output, renderer)
     return 0
 

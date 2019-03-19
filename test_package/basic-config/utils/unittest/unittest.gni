@@ -16,11 +16,6 @@
 
 template("unittest") {
   local_target_name = target_name
-  if (is_win) {
-    script_extension = ".bat"
-  } else {
-    script_extension = ".sh"
-  }
 
   test_bin_dir = "${root_build_dir}/testing/bin"
   #test_lib_dir = "${root_build_dir}/testing/lib"
@@ -104,23 +99,15 @@ template("unittest") {
     output_dir = test_bin_dir
 
     sources = [ "${target_gen_dir}/${local_target_name}_env.op" ]
-    outputs = [ "${output_dir}/${local_target_name}${script_extension}" ]
+    outputs = [ "${output_dir}/${local_target_name}${test_wrapper_extension}" ]
 
     script = "//basic-config/utils/generate_wrapper.py"
     args = [
       "--debug",
       "--env-ops", rebase_path(sources[0], root_build_dir),
       "--output", rebase_path(outputs[0], root_build_dir),
+      "--language", "${test_wrapper_lang}",
     ]
-    if (is_win) {
-      args += [
-        "--language", "batch",
-      ]
-    } else {
-      args += [
-        "--language", "bash",
-      ]
-    }
 
     deps = [ ":_${local_target_name}_env_metadata" ]
   }
@@ -135,7 +122,7 @@ template("unittest") {
 
     script = "//basic-config/utils/dummy_executor.py"
     args = [
-      rebase_path(test_bin_dir, root_build_dir) + "/${local_target_name}${script_extension}",
+      rebase_path(test_bin_dir, root_build_dir) + "/${local_target_name}${test_wrapper_extension}",
     ]
     if (is_win) {
       args += [
