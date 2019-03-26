@@ -36,23 +36,19 @@ config("compiler_defaults") {
       cflags += [ "/Zi" ]
     } else {
       cflags += [
+        "-MD",
         "/O2",
         "/Zc:inline",
       ]
     }
     defines += [
+      "_SECURE_SCL=0",
       "_CRT_SECURE_NO_DEPRECATE",
-      "_CRT_SECURE_NO_WARNINGS",
       "_CRT_NONSTDC_NO_DEPRECATE",
-      "_CRT_NONSTDC_NO_WARNINGS",
       "_SCL_SECURE_NO_DEPRECATE",
-      "_SCL_SECURE_NO_WARNINGS",
-
-      "_HAS_EXCEPTIONS=0",
-      "_UNICODE",
-      "UNICODE",
+      "_WIN64",
     ]
-    cflags += [ "/EHs-c-" ]
+    cflags += [ "/EHsc" ]
     cflags_cc = [
       "/std:c++14",
       "/Zc:__cplusplus",

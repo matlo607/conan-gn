@@ -11,9 +11,15 @@ python_output_dir = "${root_build_dir}/lib"
 
 group("link_python_runtime_config") {
   metadata = {
-    envvars = [
-      "name=\"PYTHONPATH\",op=\"prepend\",value=\"/" + rebase_path("${python_output_dir}/python2.7", "/") + "\"",
-    ]
+    if (is_win) {
+      envvars = [
+        "name=\"PYTHONPATH\",op=\"prepend\",value=\"" + rebase_path("${python_output_dir}/python2.7", "/") + "\"",
+      ]
+    } else {
+      envvars = [
+        "name=\"PYTHONPATH\",op=\"prepend\",value=\"/" + rebase_path("${python_output_dir}/python2.7", "/") + "\"",
+      ]
+    }
   }
 }
 

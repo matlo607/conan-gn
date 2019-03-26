@@ -22,10 +22,14 @@ template("unittest") {
 
   group("global_runtime_path") {
     metadata = {
-      envvars = [
-        "name=\"PATH\",op=\"prepend\",value=\"/" + rebase_path("${root_build_dir}/bin", "/") + "\"",
-      ]
-      if (!is_win) {
+      if (is_win) {
+        envvars = [
+          "name=\"PATH\",op=\"prepend\",value=\"" + rebase_path("${root_build_dir}/bin", "/") + "\"",
+        ]
+      } else {
+        envvars = [
+          "name=\"PATH\",op=\"prepend\",value=\"/" + rebase_path("${root_build_dir}/bin", "/") + "\"",
+        ]
         envvars += [
           "name=\"LD_LIBRARY_PATH\",op=\"prepend\",value=\"/" + rebase_path("${root_build_dir}/lib", "/") + "\"",
         ]

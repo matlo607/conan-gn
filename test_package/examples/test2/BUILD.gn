@@ -7,5 +7,4 @@ unittest("test2") {
 
   cflags = [ "-Wall" ]
   defines = [ "EVIL_BIT=1" ]
-  include_dirs = [ "." ]
 }
