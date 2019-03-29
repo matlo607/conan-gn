@@ -1,4 +1,6 @@
 template("cyclic_deps_shared_library") {
+    local_target_name = target_name
+
     forward_variables_from(invoker, "*")
     assert(defined(invoker.cyclic_deps), "You need to specify the list of cyclic dependencies")
 
@@ -16,27 +18,97 @@ template("cyclic_deps_shared_library") {
 
     #print(invoker.cyclic_deps)
 
-    shared_library(target_name) {
-        configs -= [ "//basic-config:check_undefined_symbols" ]
+    if (is_win) {
 
-        # Add private dependencies on cyclic dependencies' headers
-        if (defined(invoker.deps)) {
-            deps = invoker.deps
-        } else {
-            deps = []
-        }
-        foreach(cyclic_dep, cyclic_deps) {
-            dep_name = get_label_info(cyclic_dep, "name")
-            deps += [ "${cyclic_dep}:${dep_name}_public_config" ]
+        static_library("_cyclic_${local_target_name}") {
+            # Add private dependencies on cyclic dependencies' headers
+            if (defined(invoker.deps)) {
+                deps = invoker.deps
+            } else {
+                deps = []
+            }
+            foreach(cyclic_dep, cyclic_deps) {
+                dep_name = get_label_info(cyclic_dep, "name")
+                deps += [ "${cyclic_dep}:${dep_name}_public_config" ]
+            }
+
+            # Add public dependencies on this library's headers
+            if (defined(invoker.public_configs)) {
+                public_configs = []
+                public_configs = invoker.public_configs
+                public_configs += [ ":_${target_public_config}" ]
+            } else {
+                public_configs = [ ":_${target_public_config}" ]
+            }
+            output_dir = target_out_dir
+            output_name = local_target_name
+            output_extension = ".lib"
         }
 
-        # Add public dependencies on this library's headers
-        if (defined(invoker.public_configs)) {
-            public_configs = []
-            public_configs = invoker.public_configs
-            public_configs += [ ":_${target_public_config}" ]
-        } else {
-            public_configs = [ ":_${target_public_config}" ]
+        action("${local_target_name}") {
+            sources = []
+            sources = [ "${target_out_dir}/${local_target_name}.lib" ]
+            outputs = [ "${target_gen_dir}/${local_target_name}_dumpbin.out" ]
+
+            script = "//basic-config/utils/dummy_executor.py"
+            args = [
+              "dumpbin",
+              "/LINKERMEMBER:2",
+              "/OUT:" + rebase_path(outputs[0], root_build_dir),
+              rebase_path(sources[0], root_build_dir),
+            ]
+
+            deps = [ ":_cyclic_${local_target_name}" ]
+        }
+
+        action("${local_target_name}") {
+            sources = []
+            sources = [ "${target_gen_dir}/${local_target_name}_dumpbin.out" ]
+            outputs = [ "${target_gen_dir}/${local_target_name}.lib.def" ]
+
+            script = "//basic-config/utils/cyclic_dependencies/gendef.py"
+            args = [
+              "-n", "$\{DLL_NAME\}",
+              "-o", rebase_path(outputs[0], root_build_dir),
+              rebase_path(sources[0], root_build_dir),
+            ]
+
+            deps = [ ":_${local_target_name}_dumpbin" ]
+        }
+
+    } else {
+        shared_library(target_name) {
+            configs -= [ "//basic-config:check_undefined_symbols" ]
+
+            # Add private dependencies on cyclic dependencies' headers
+            if (defined(invoker.deps)) {
+                deps = invoker.deps
+            } else {
+                deps = []
+            }
+            foreach(cyclic_dep, cyclic_deps) {
+                dep_name = get_label_info(cyclic_dep, "name")
+                deps += [ "${cyclic_dep}:${dep_name}_public_config" ]
+            }
+
+            # Add public dependencies on this library's headers
+            if (defined(invoker.public_configs)) {
+                public_configs = []
+                public_configs = invoker.public_configs
+                public_configs += [ ":_${target_public_config}" ]
+            } else {
+                public_configs = [ ":_${target_public_config}" ]
+            }
         }
     }
+}
+
+
+
+template("cyclic_deps") {
+    local_target_name = target_name
+
+    forward_variables_from(invoker, "*")
+
+
 }

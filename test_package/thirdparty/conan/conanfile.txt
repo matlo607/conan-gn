@@ -1,5 +1,5 @@
 [requires]
-googletest/a3c73ed28d7@gn/testing
+googletest/8fbf9d16a63@matthieu/testing
 #gtest/1.8.1@bincrafters/stable
 GNGenerator/0.1@matthieu/testing
 

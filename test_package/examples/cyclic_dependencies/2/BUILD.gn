@@ -1,3 +1,14 @@
+if (is_win) {
+  import("//basic-config/utils/cyclic_dependencies/tools.gni")
+
+  cyclic_deps("dll_with_2_cyclic_dependencies") {
+    deps = [
+      "//examples/cyclic_dependencies/2/a2",
+      "//examples/cyclic_dependencies/2/b2",
+    ]
+  }
+}
+
 executable("executable_with_2_cyclic_dependencies") {
   testonly = true
 
@@ -5,8 +16,14 @@ executable("executable_with_2_cyclic_dependencies") {
     "main.cc",
   ]
 
-  deps = [
-    "//examples/cyclic_dependencies/2/a2",
-    "//examples/cyclic_dependencies/2/b2",
-  ]
+  if (is_win) {
+    deps = [
+      "dll_with_2_cyclic_dependencies",
+    ]
+  } else {
+    deps = [
+      "//examples/cyclic_dependencies/2/a2",
+      "//examples/cyclic_dependencies/2/b2",
+    ]
+  }
 }
