@@ -34,15 +34,18 @@ class GNConanFile(ConanFile):
                 python_executable = "C:\\Python27\\python.exe"
                 build_env = tools.vcvars_dict(self.settings)
             else:
-                python_executable = "python2.7"
+                python_executable = "python3"
+                # GNU binutils's ld and gold don't support Darwin (macOS)
+                # Use the default provided linker
                 build_env = dict()
-                build_env["LDFLAGS"] = "-fuse-ld=gold"
+                if self.settings.os == "Linux":
+                    build_env["LDFLAGS"] = "-fuse-ld=gold"
 
             with tools.environment_append(build_env):
                 self.run("{python} build/gen.py --out-path={build_dir}"\
                          .format(python=python_executable, build_dir=build_dir))
                 self.run("ninja -j {cpu_nb} -C {build_dir}"\
-                    .format(cpu_nb=tools.cpu_count()-1, build_dir=build_dir))
+                         .format(cpu_nb=tools.cpu_count()-1, build_dir=build_dir))
                 if self.options.tests:
                     self.run("{build_dir}/gn_unittests".format(build_dir=build_dir))
 
